@@ -1,4 +1,4 @@
-const products = [
+let products = [
   { id: 1, name: 'Coca-Cola 1.5L', price: 1850, stock: 12, category: 'Bebidas', code: '7790895001234', icon: '◉' },
   { id: 2, name: 'Agua mineral 500ml', price: 950, stock: 24, category: 'Bebidas', code: '7790315009876', icon: '◌' },
   { id: 3, name: 'Papas clásicas', price: 1200, stock: 3, category: 'Snacks', code: '7790387002231', icon: '◈' },
@@ -9,8 +9,11 @@ const products = [
   { id: 8, name: 'Chicles menta', price: 450, stock: 7, category: 'Snacks', code: '7792222333444', icon: '·' },
   { id: 9, name: 'Arroz largo fino', price: 1100, stock: 14, category: 'Almacén', code: '7793333444555', icon: '▦' }
 ];
+const savedProducts = JSON.parse(localStorage.getItem('mostradorProducts') || 'null');
+if (Array.isArray(savedProducts)) products = savedProducts;
 let cart = [{ productId: 1, quantity: 1 }, { productId: 4, quantity: 2 }];
 let currentCategory = 'Todos';
+let inventoryCategory = 'Todas';
 let paymentMethod = 'cash';
 let isDayClosed = false;
 let salesHistory = [
@@ -75,6 +78,16 @@ function updatePaymentCalculator(total = cart.reduce((sum, item) => sum + produc
 }
 
 function showToast(message) { const toast = document.querySelector('#toast'); toast.textContent = message; toast.classList.add('show'); window.clearTimeout(showToast.timer); showToast.timer = window.setTimeout(() => toast.classList.remove('show'), 2600); }
+function printTicket() {
+  if (!cart.length) { showToast('Agregá al menos un producto para imprimir'); return; }
+  const total = cart.reduce((sum, item) => sum + productById(item.productId).price * item.quantity, 0);
+  const paymentLabel = paymentMethod === 'cash' ? 'Efectivo' : paymentMethod === 'debit' ? 'Débito' : 'QR';
+  const items = cart.map(item => { const product = productById(item.productId); return `<div class="item"><span>${item.quantity} x ${product.name}</span><strong>${money(product.price * item.quantity)}</strong></div>`; }).join('');
+  const receiptWindow = window.open('', '_blank', 'width=420,height=650');
+  if (!receiptWindow) { showToast('Permití las ventanas emergentes para imprimir'); return; }
+  receiptWindow.document.write(`<!doctype html><html lang="es"><head><meta charset="UTF-8"><title>Ticket - Mostrador Web</title><style>body{font-family:Arial,sans-serif;color:#17332d;width:300px;margin:24px auto;font-size:13px}.header{text-align:center;border-bottom:1px dashed #9aa9a1;padding-bottom:14px;margin-bottom:14px}.header h1{font-size:18px;margin:0 0 5px}.header p{margin:0;color:#60746b;font-size:11px}.item{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #e5ebe6}.item strong,.total strong{white-space:nowrap}.total{display:flex;justify-content:space-between;font-size:16px;font-weight:bold;padding-top:14px}.detail{color:#60746b;font-size:11px;margin-top:14px;line-height:1.6}.footer{text-align:center;border-top:1px dashed #9aa9a1;margin-top:20px;padding-top:14px;color:#60746b;font-size:10px}@media print{body{margin:0 auto}}</style></head><body><div class="header"><h1>Mostrador Web</h1><p>Ticket de venta</p><p>${new Date().toLocaleString('es-AR')}</p></div>${items}<div class="total"><span>Total</span><strong>${money(total)}</strong></div><div class="detail">Medio de pago: ${paymentLabel}${paymentMethod === 'cash' && receivedAmount() >= total ? `<br>Recibido: ${money(receivedAmount())}<br>Vuelto: ${money(receivedAmount() - total)}` : ''}</div><div class="footer">Gracias por tu compra</div><script>window.onload=()=>window.print();<\/script></body></html>`);
+  receiptWindow.document.close();
+}
 function renderNotifications() { const unread = notifications.filter(notification => notification.unread).length; const count = document.querySelector('#notification-count'); count.textContent = unread; count.hidden = unread === 0; document.querySelector('#notification-list').innerHTML = notifications.length ? notifications.map(notification => `<div class="notification-item ${notification.unread ? 'unread' : ''}"><span class="notification-mark ${notification.type === 'stock' ? 'warning' : ''}">${notification.type === 'stock' ? '!' : '$'}</span><div class="notification-copy"><strong>${notification.title}</strong><span>${notification.detail}</span>${notification.amount ? `<span class="notification-amount">${notification.amount}</span>` : ''}<small>${notification.time}</small></div></div>`).join('') : '<div class="notification-empty">No hay actividad reciente.</div>'; }
 function addSaleNotification(total, detail) { notifications.unshift({ type: 'sale', title: 'Venta completada', detail, amount: money(total), time: 'Ahora', unread: true }); notifications = notifications.slice(0, 8); renderNotifications(); }
 function addToCart(id) { const product = productById(id); const item = cart.find(entry => entry.productId === id); if (item) item.quantity += 1; else cart.push({ productId: id, quantity: 1 }); renderCart(); showToast(`${product.name} agregado al ticket`); }
@@ -82,9 +95,25 @@ function changeQuantity(id, amount) { const item = cart.find(entry => entry.prod
 
 function renderInventory() {
   const search = document.querySelector('#inventory-search').value.toLowerCase().trim();
-  const filtered = products.filter(product => `${product.name} ${product.code} ${product.category}`.toLowerCase().includes(search));
+  const filtered = products.filter(product => {
+    const categoryMatch = inventoryCategory === 'Todas' || product.category === inventoryCategory;
+    const searchMatch = `${product.name} ${product.code} ${product.category}`.toLowerCase().includes(search);
+    return categoryMatch && searchMatch;
+  });
   document.querySelector('#inventory-count').textContent = `${filtered.length} productos`;
-  document.querySelector('#inventory-body').innerHTML = filtered.map(product => `<tr><td>${product.name}</td><td>${product.category}</td><td>${product.code}</td><td>${money(product.price)}</td><td><span class="table-stock ${product.stock <= 3 ? 'low' : ''}">${product.stock} unidades</span></td><td><button class="row-action" type="button" aria-label="Más opciones">•••</button></td></tr>`).join('');
+  document.querySelector('#inventory-body').innerHTML = filtered.map(product => `<tr><td>${product.name}</td><td>${product.category}</td><td>${product.code}</td><td>${money(product.price)}</td><td><span class="table-stock ${product.stock <= 3 ? 'low' : ''}">${product.stock} unidades</span></td><td><button class="row-action delete-product" type="button" data-remove-product="${product.id}" aria-label="Eliminar ${product.name}">×</button></td></tr>`).join('');
+}
+function removeProduct(id) {
+  const product = productById(id);
+  if (!product || !window.confirm(`¿Querés quitar “${product.name}” del inventario?`)) return;
+  products = products.filter(item => item.id !== id);
+  cart = cart.filter(item => item.productId !== id);
+  localStorage.setItem('mostradorProducts', JSON.stringify(products));
+  renderProducts();
+  renderInventory();
+  renderTopProducts();
+  renderCart();
+  showToast(`${product.name} quitado del inventario`);
 }
 function renderTopProducts() { document.querySelector('#top-products-list').innerHTML = products.slice(0, 4).map((product, index) => `<div class="top-product-row"><span class="top-product-number">0${index + 1}</span><div><strong>${product.name}</strong><span>${34 - index * 5} unidades vendidas</span></div><span class="top-product-price">${money(product.price)}</span></div>`).join(''); }
 function dateKey(date) { return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`; }
@@ -100,6 +129,7 @@ function closeModal() { document.querySelector('#product-modal').hidden = true; 
 
 document.addEventListener('click', event => {
   const addButton = event.target.closest('[data-add-product]'); if (addButton) addToCart(Number(addButton.dataset.addProduct));
+  const removeButton = event.target.closest('[data-remove-product]'); if (removeButton) removeProduct(Number(removeButton.dataset.removeProduct));
   const increase = event.target.closest('[data-increase]'); if (increase) changeQuantity(Number(increase.dataset.increase), 1);
   const decrease = event.target.closest('[data-decrease]'); if (decrease) changeQuantity(Number(decrease.dataset.decrease), -1);
   const nav = event.target.closest('[data-view]'); if (nav) openView(nav.dataset.view);
@@ -109,7 +139,15 @@ document.addEventListener('click', event => {
 });
 document.querySelector('#product-search').addEventListener('input', renderProducts);
 document.querySelector('#inventory-search').addEventListener('input', renderInventory);
+document.querySelector('#inventory-category-filter').addEventListener('change', event => { inventoryCategory = event.target.value; renderInventory(); });
 document.querySelector('#clear-cart').addEventListener('click', () => { cart = []; renderCart(); showToast('Ticket limpiado'); });
+const printButton = document.createElement('button');
+printButton.className = 'secondary-button print-button';
+printButton.id = 'print-ticket';
+printButton.type = 'button';
+printButton.textContent = '▣ Imprimir ticket';
+document.querySelector('#pay-button').parentElement.insertBefore(printButton, document.querySelector('#pay-button'));
+printButton.addEventListener('click', printTicket);
 document.querySelector('#cash-received').addEventListener('input', () => updatePaymentCalculator());
 document.querySelectorAll('[data-cash]').forEach(button => button.addEventListener('click', () => { document.querySelector('#cash-received').value = button.dataset.cash; updatePaymentCalculator(); }));
 document.querySelectorAll('[data-payment]').forEach(button => button.addEventListener('click', () => { paymentMethod = button.dataset.payment; document.querySelectorAll('.payment-method').forEach(method => method.classList.toggle('active', method === button)); document.querySelector('#cash-payment').hidden = paymentMethod !== 'cash'; document.querySelector('#pay-button').firstChild.textContent = paymentMethod === 'cash' ? 'Cobrar ' : 'Confirmar cobro '; }));
@@ -149,7 +187,7 @@ document.querySelector('#settings-logout').addEventListener('click', openLogoutC
 document.querySelector('#cancel-logout').addEventListener('click', closeLogoutConfirm);
 document.querySelector('#confirm-logout').addEventListener('click', performLogout);
 document.querySelector('#logout-confirm-modal').addEventListener('click', event => { if (event.target.id === 'logout-confirm-modal') closeLogoutConfirm(); });
-document.querySelector('#product-form').addEventListener('submit', event => { event.preventDefault(); const data = new FormData(event.target); products.unshift({ id: Date.now(), name: data.get('name'), price: Number(data.get('price')), stock: Number(data.get('stock')), category: data.get('category'), code: data.get('code') || 'Sin código', icon: '✦' }); renderProducts(); renderInventory(); closeModal(); event.target.reset(); showToast('Producto guardado en el inventario'); });
+document.querySelector('#product-form').addEventListener('submit', event => { event.preventDefault(); const data = new FormData(event.target); products.unshift({ id: Date.now(), name: data.get('name'), price: Number(data.get('price')), stock: Number(data.get('stock')), category: data.get('category'), code: data.get('code') || 'Sin código', icon: '✦' }); localStorage.setItem('mostradorProducts', JSON.stringify(products)); renderProducts(); renderInventory(); renderTopProducts(); closeModal(); event.target.reset(); showToast('Producto guardado en el inventario'); });
 document.querySelector('#simulate-scan').addEventListener('click', () => { const product = products[Math.floor(Math.random() * products.length)]; document.querySelector('#last-scan-name').textContent = product.name; document.querySelector('#last-scan-detail').textContent = `${product.code} · ${money(product.price)} · ${product.stock} unidades disponibles`; showToast(`Código detectado: ${product.code}`); });
 document.addEventListener('keydown', event => { if (event.key === 'F2') { event.preventDefault(); document.querySelector('#product-search').focus(); } if (event.key === 'Escape') closeModal(); });
 function showAuthenticatedApp() { const session = JSON.parse(localStorage.getItem('mostradorSession') || '{}'); const isDeveloper = session.role === 'developer'; document.querySelector('#profile-avatar').textContent = isDeveloper ? 'DV' : 'JP'; document.querySelector('#profile-name').textContent = session.name || (isDeveloper ? 'Desarrollador' : 'Juan Pérez'); document.querySelector('#profile-role').textContent = isDeveloper ? 'Desarrollador' : 'Administrador'; document.querySelector('#auth-screen').hidden = true; document.querySelector('.app-shell').classList.add('is-visible'); }

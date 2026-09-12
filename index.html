@@ -18,14 +18,14 @@
       <div class="auth-card">
         <div class="auth-tabs"><button class="auth-tab active" data-auth-view="register" type="button">Crear cuenta</button><button class="auth-tab" data-auth-view="login" type="button">Iniciar sesión</button></div>
         <div id="register-form-wrap">
-          <div class="auth-card-heading"><p class="section-kicker">Empezá hoy</p><h2>Tu primer mes es gratis</h2><p>Sin cargos durante 30 días. Después, <strong>$1,99 USD / mes</strong> o su equivalente en pesos argentinos.</p></div>
-          <form id="register-form" class="auth-form"><label>Nombre del comercio<input name="store" required placeholder="Ej. Almacén La Esquina" /></label><label>Tu nombre<input name="name" required placeholder="Ej. Juan Pérez" /></label><label>Email<input name="email" type="email" required placeholder="vos@comercio.com" /></label><label>Contraseña<input name="password" type="password" minlength="6" required placeholder="Mínimo 6 caracteres" /></label><div class="payment-choice-label">Forma de pago para después del período gratis</div><div class="auth-payment-methods"><button class="auth-payment active" data-auth-payment="card" type="button">▣ Tarjeta</button><button class="auth-payment" data-auth-payment="mercadopago" type="button">◆ Mercado Pago</button><button class="auth-payment" data-auth-payment="transfer" type="button">↗ Transferencia</button></div><input type="hidden" name="payment" id="auth-payment-value" value="card" /><div class="trial-note"><span>30 días sin cargo</span><strong>Después $1,99 USD / mes</strong></div><button class="primary-button full-button" type="submit">Crear mi cuenta <span>→</span></button></form>
+          <div class="auth-card-heading"><p class="section-kicker">Empezá hoy</p><h2>Creá tu cuenta gratis</h2><p>Registrá tu comercio y empezá a usar todas las herramientas de Mostrador Web.</p></div>
+          <form id="register-form" class="auth-form"><label>Nombre del comercio<input name="store" required placeholder="Ej. Almacén La Esquina" /></label><label>Tu nombre<input name="name" required placeholder="Ej. Juan Pérez" /></label><label>Email<input name="email" type="email" required placeholder="vos@comercio.com" /></label><label>Contraseña<input name="password" type="password" minlength="6" required placeholder="Mínimo 6 caracteres" /></label><button class="primary-button full-button" type="submit">Crear mi cuenta <span>→</span></button></form>
         </div>
         <div id="login-form-wrap" hidden><div class="auth-card-heading"><p class="section-kicker">Qué bueno verte</p><h2>Volvé a tu mostrador</h2><p>Ingresá con los datos de tu cuenta para continuar.</p></div><form id="login-form" class="auth-form"><label>Email o usuario<input name="identifier" type="text" required placeholder="vos@comercio.com o desarrollador" /></label><label>Contraseña<input name="password" type="password" required placeholder="Tu contraseña" /></label><button class="primary-button full-button" type="submit">Iniciar sesión <span>→</span></button><p class="auth-error" id="auth-error" hidden></p></form></div>
         <p class="auth-legal">Al continuar aceptás los términos de uso y la política de privacidad.</p>
       </div>
     </div>
-    <div class="auth-footer"><span>Mostrador Web 2026</span><span>Pagos protegidos · Soporte para comercios</span></div>
+    <div class="auth-footer"><span>Mostrador Web 2026</span><span>Soporte para comercios</span></div>
   </section>
 
   <div class="app-shell">
@@ -142,7 +142,7 @@
 
       <section class="view" id="inventory-view" aria-label="Inventario">
         <div class="view-heading"><div><p class="section-kicker">Control de mercadería</p><h2>Stock de productos</h2><p>Revisá existencias y actualizá tus productos en un solo lugar.</p></div><button class="primary-button" id="add-product-inventory" type="button">＋ Nuevo producto</button></div>
-        <div class="panel inventory-panel"><div class="inventory-toolbar"><div class="search-box compact"><span>⌕</span><input id="inventory-search" type="search" placeholder="Buscar en inventario..." /></div><button class="filter-button" type="button">☷ Filtrar</button><span class="inventory-count" id="inventory-count"></span></div><div class="inventory-table-wrap"><table><thead><tr><th>Producto</th><th>Categoría</th><th>Código</th><th>Precio</th><th>Stock</th><th></th></tr></thead><tbody id="inventory-body"></tbody></table></div></div>
+        <div class="panel inventory-panel"><div class="inventory-toolbar"><div class="search-box compact"><span>⌕</span><input id="inventory-search" type="search" placeholder="Buscar en inventario..." /></div><label class="filter-select"><span>Categoría</span><select id="inventory-category-filter"><option value="Todas">Todas</option><option value="Bebidas">Bebidas</option><option value="Almacén">Almacén</option><option value="Snacks">Snacks</option></select></label><span class="inventory-count" id="inventory-count"></span></div><div class="inventory-table-wrap"><table><thead><tr><th>Producto</th><th>Categoría</th><th>Código</th><th>Precio</th><th>Stock</th><th></th></tr></thead><tbody id="inventory-body"></tbody></table></div></div>
       </section>
 
       <section class="view" id="scanner-view" aria-label="Escanear producto">
