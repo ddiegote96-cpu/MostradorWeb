@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mostrador Web | Gestión de kiosco</title>
+  <meta name="description" content="Caja registradora, stock y códigos de barra para tu comercio." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <section class="auth-screen" id="auth-screen">
+    <div class="auth-brand"><div class="brand-mark">M</div><div><strong>Mostrador Web</strong><span>gestión simple para tu comercio</span></div></div>
+    <div class="auth-layout">
+      <div class="auth-intro"><p class="auth-overline">Tu comercio, en orden</p><h1>Todo lo que pasa<br><em>por tu mostrador.</em></h1><p>Registrá ventas, controlá tu stock y cobrá con tranquilidad desde un solo lugar.</p><div class="auth-benefits"><span>✓ Caja e inventario conectados</span><span>✓ Código de barras listo</span><span>✓ Acceso desde cualquier dispositivo</span></div></div>
+      <div class="auth-card">
+        <div class="auth-tabs"><button class="auth-tab active" data-auth-view="register" type="button">Crear cuenta</button><button class="auth-tab" data-auth-view="login" type="button">Iniciar sesión</button></div>
+        <div id="register-form-wrap">
+          <div class="auth-card-heading"><p class="section-kicker">Empezá hoy</p><h2>Tu primer mes es gratis</h2><p>Sin cargos durante 30 días. Después, <strong>$1,99 USD / mes</strong> o su equivalente en pesos argentinos.</p></div>
+          <form id="register-form" class="auth-form"><label>Nombre del comercio<input name="store" required placeholder="Ej. Almacén La Esquina" /></label><label>Tu nombre<input name="name" required placeholder="Ej. Juan Pérez" /></label><label>Email<input name="email" type="email" required placeholder="vos@comercio.com" /></label><label>Contraseña<input name="password" type="password" minlength="6" required placeholder="Mínimo 6 caracteres" /></label><div class="payment-choice-label">Forma de pago para después del período gratis</div><div class="auth-payment-methods"><button class="auth-payment active" data-auth-payment="card" type="button">▣ Tarjeta</button><button class="auth-payment" data-auth-payment="mercadopago" type="button">◆ Mercado Pago</button><button class="auth-payment" data-auth-payment="transfer" type="button">↗ Transferencia</button></div><input type="hidden" name="payment" id="auth-payment-value" value="card" /><div class="trial-note"><span>30 días sin cargo</span><strong>Después $1,99 USD / mes</strong></div><button class="primary-button full-button" type="submit">Crear mi cuenta <span>→</span></button></form>
+        </div>
+        <div id="login-form-wrap" hidden><div class="auth-card-heading"><p class="section-kicker">Qué bueno verte</p><h2>Volvé a tu mostrador</h2><p>Ingresá con los datos de tu cuenta para continuar.</p></div><form id="login-form" class="auth-form"><label>Email o usuario<input name="identifier" type="text" required placeholder="vos@comercio.com o desarrollador" /></label><label>Contraseña<input name="password" type="password" required placeholder="Tu contraseña" /></label><button class="primary-button full-button" type="submit">Iniciar sesión <span>→</span></button><p class="auth-error" id="auth-error" hidden></p></form></div>
+        <p class="auth-legal">Al continuar aceptás los términos de uso y la política de privacidad.</p>
+      </div>
+    </div>
+    <div class="auth-footer"><span>Mostrador Web 2026</span><span>Pagos protegidos · Soporte para comercios</span></div>
+  </section>
+
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegación principal">
+      <div class="brand">
+        <div class="brand-mark">M</div>
+        <div>
+          <strong>Mostrador Web</strong>
+          <span>gestión simple</span>
+        </div>
+      </div>
+
+      <div class="store-switcher">
+        <span class="eyebrow">Comercio activo</span>
+        <button class="store-button" id="store-button" type="button" aria-expanded="false"><span class="store-dot"></span><span id="active-store-name">Almacén La Esquina</span><span class="chevron">⌄</span></button>
+        <div class="store-menu" id="store-menu" hidden><span class="store-menu-label">Tus comercios</span><button class="store-option selected" data-store="Almacén La Esquina" type="button"><span class="store-option-dot"></span><span><strong>Almacén La Esquina</strong><small>Comercio principal</small></span><span class="store-check">✓</span></button><button class="store-option" data-store="Kiosco Centro" type="button"><span class="store-option-dot orange"></span><span><strong>Kiosco Centro</strong><small>Comercio secundario</small></span><span class="store-check">✓</span></button><button class="add-store-button" id="add-store-button" type="button">＋ Agregar comercio</button></div>
+      </div>
+
+      <nav class="nav-list">
+        <span class="nav-label">Operación</span>
+        <button class="nav-item active" data-view="sales" type="button"><span class="nav-icon">▣</span> Operaciones <span class="nav-count">3</span></button>
+        <button class="nav-item" data-view="payment" type="button"><span class="nav-icon">$</span> Cobrar</button>
+        <button class="nav-item" data-view="inventory" type="button"><span class="nav-icon">▤</span> Stock</button>
+        <button class="nav-item" data-view="scanner" type="button"><span class="nav-icon">⌁</span> Escanear</button>
+        <button class="nav-item" data-view="closeout" type="button"><span class="nav-icon">▥</span> Cierre</button>
+        <span class="nav-label space-top">Información</span>
+        <button class="nav-item" data-view="reports" type="button"><span class="nav-icon">◒</span> Resumen del día</button>
+        <button class="nav-item" data-view="calendar" type="button"><span class="nav-icon">▦</span> Agenda</button>
+        <button class="nav-item" data-action="settings" type="button"><span class="nav-icon">⚙</span> Configuración</button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="status-line"><span class="pulse"></span> Sistema operativo</div>
+        <button class="help-link" id="quick-help" type="button">? <span>Ayuda rápida</span></button>
+        <button class="profile" id="logout-button" type="button"><div class="avatar" id="profile-avatar">JP</div><div><strong id="profile-name">Juan Pérez</strong><span id="profile-role">Administrador</span></div><span class="more">•••</span></button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="date-line">SÁBADO 12 DE SEPTIEMBRE, 2026 <span class="live-dot"></span> ABIERTO</p>
+          <h1 id="page-title">Operaciones</h1>
+        </div>
+        <div class="top-actions">
+          <div class="notification-wrap"><button class="icon-button" id="notification-button" type="button" title="Notificaciones" aria-label="Notificaciones" aria-expanded="false">♧<span class="notification-badge" id="notification-count">2</span></button><div class="notification-panel" id="notification-panel" hidden><div class="notification-panel-head"><div><strong>Actividad reciente</strong><span>Ventas y alertas del comercio</span></div><button id="mark-notifications" type="button">Marcar leídas</button></div><div class="notification-list" id="notification-list"></div></div></div>
+          <button class="secondary-button closeout-jump" id="go-closeout" type="button"><span>▥</span> Ir a cierre de caja</button><button class="secondary-button" id="add-product-top" type="button"><span>＋</span> Nuevo producto</button>
+        </div>
+      </header>
+
+      <section class="view active-view" id="sales-view" aria-label="Operaciones">
+        <div class="metrics-row">
+          <article class="metric-card highlight"><div class="metric-top"><span>Ventas de hoy</span><span class="metric-icon">$</span></div><strong id="sales-total">$ 84.250</strong><div class="metric-bottom"><span class="positive">↑ 12,8%</span> vs. ayer</div></article>
+          <article class="metric-card"><div class="metric-top"><span>Operaciones</span><span class="metric-icon">#</span></div><strong id="operations-total">34</strong><div class="metric-bottom">Última hace 4 min</div></article>
+          <article class="metric-card"><div class="metric-top"><span>Stock bajo</span><span class="metric-icon warning">!</span></div><strong id="low-stock-total">3</strong><div class="metric-bottom"><button class="text-button" data-view-target="inventory" type="button">Ver productos</button></div></article>
+        </div>
+
+        <div class="workspace-grid product-only-grid">
+          <section class="panel checkout-panel" aria-label="Catálogo de productos">
+            <div class="panel-heading"><div><p class="section-kicker">Catálogo de venta</p><h2>Productos</h2></div><span class="ticket-number"># 0047</span></div>
+            <div class="search-box"><span>⌕</span><input id="product-search" type="search" placeholder="Buscar por nombre o código..." autocomplete="off" /><kbd>F2</kbd></div>
+            <div class="category-tabs" role="tablist"><button class="category-tab active" data-category="Todos" type="button">Todos</button><button class="category-tab" data-category="Bebidas" type="button">Bebidas</button><button class="category-tab" data-category="Almacén" type="button">Almacén</button><button class="category-tab" data-category="Snacks" type="button">Snacks</button></div>
+            <div class="product-grid" id="product-grid"></div>
+            <div class="empty-search" id="empty-search" hidden>No encontramos productos con esa búsqueda.</div>
+          </section>
+
+        </div>
+      </section>
+      <section class="view" id="calendar-view" aria-label="Calendario de trabajo">
+        <div class="view-heading">
+          <div><p class="section-kicker">Organización del comercio</p><h2>Plan de trabajo</h2><p>Marcá los días que abrís y registrá cuánto facturaste.</p></div>
+        </div>
+        <div class="calendar-layout">
+          <section class="panel calendar-panel">
+            <div class="calendar-header">
+              <button class="calendar-arrow" id="previous-month" type="button" aria-label="Mes anterior">‹</button>
+              <div><strong id="calendar-month">Septiembre 2026</strong><span id="calendar-subtitle">Plan de trabajo</span></div>
+              <button class="calendar-arrow" id="next-month" type="button" aria-label="Mes siguiente">›</button>
+            </div>
+            <div class="calendar-weekdays">
+              <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span><span>Dom</span>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+            <div class="calendar-legend">
+              <span><i class="legend-dot open"></i> Abierto</span>
+              <span><i class="legend-dot closed"></i> No abre</span>
+              <span><i class="legend-dot selected"></i> Seleccionado</span>
+            </div>
+          </section>
+          <section class="panel day-detail-panel">
+            <p class="section-kicker">Día seleccionado</p>
+            <h2 id="selected-date-label">Sábado 12 de septiembre</h2>
+            <div class="day-status-card">
+              <span id="selected-day-status">Abierto</span>
+              <small id="selected-day-status-detail">El comercio trabaja este día</small>
+            </div>
+            <div class="day-actions">
+              <button class="day-action active" id="mark-open" type="button">✓ Abierto</button>
+              <button class="day-action" id="mark-closed" type="button">× No abre</button>
+            </div>
+            <label class="billing-label" for="day-billing">Facturado ese día
+              <input id="day-billing" type="number" min="0" inputmode="numeric" placeholder="0" />
+              <small>Se completa con las ventas registradas o podés editarlo.</small>
+            </label>
+            <button class="primary-button full-button" id="save-day" type="button">Guardar día <span>→</span></button>
+            <p class="day-saved" id="day-saved" hidden>✓ Día guardado correctamente</p>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="payment-view" aria-label="Calculadora de cobro"><div class="view-heading"><div><p class="section-kicker">Operación de venta</p><h2>Cobro actual</h2><p>Revisá el ticket, recibí el pago y calculá el vuelto.</p></div></div><div class="payment-view-layout"><section class="panel cart-panel" aria-label="Detalles de ventas"><div class="panel-heading"><div><p class="section-kicker">Ticket actual</p><h2>Detalles de ventas</h2></div><button class="clear-button" id="clear-cart" type="button">Limpiar</button></div><div class="cart-items" id="cart-items"></div><div class="cart-empty" id="cart-empty"><span class="empty-icon">＋</span><strong>Tu ticket está vacío</strong><span>Agregá productos desde Operaciones</span></div><div class="cart-summary"><div><span>Subtotal</span><strong id="cart-subtotal">$ 0</strong></div><div><span>Descuento</span><button class="add-discount" type="button">Agregar</button></div><div class="total-line"><span>Total</span><strong id="cart-total">$ 0</strong></div><div class="payment-box"><div class="payment-heading"><span>Medio de pago</span><div class="payment-methods"><button class="payment-method active" data-payment="cash" type="button">Efectivo</button><button class="payment-method" data-payment="debit" type="button">Débito</button><button class="payment-method" data-payment="qr" type="button">QR</button></div></div><div id="cash-payment"><label class="cash-label" for="cash-received">Billete recibido</label><div class="cash-input-wrap"><span>$</span><input id="cash-received" type="number" min="0" inputmode="numeric" placeholder="0" /></div><div class="quick-cash"><button type="button" data-cash="5000">$ 5.000</button><button type="button" data-cash="10000">$ 10.000</button><button type="button" data-cash="20000">$ 20.000</button></div><div class="change-line"><span id="change-label">Vuelto</span><strong id="change-amount">$ 0</strong></div><p class="cash-feedback" id="cash-feedback">Ingresá el billete que entrega el cliente</p></div></div><button class="primary-button pay-button" id="pay-button" type="button">Cobrar <span>→</span></button><p class="payment-note">El vuelto se calcula automáticamente</p></div></section></div></section>
+
+      <section class="view" id="closeout-view" aria-label="Cierre de caja"><div class="view-heading"><div><p class="section-kicker">Control de jornada</p><h2>Resumen de caja</h2><p>Revisá todas las ventas del día antes de cerrar la jornada.</p></div><span class="closeout-status" id="closeout-status">Caja abierta</span></div><section class="panel closeout-panel" aria-label="Detalle del cierre"><div class="closeout-summary"><div><span>Total vendido</span><strong id="closeout-total">$ 0</strong></div><div><span>Ventas</span><strong id="closeout-count">0</strong></div><div><span>En efectivo</span><strong id="closeout-cash">$ 0</strong></div></div><div class="closeout-list" id="closeout-sales"></div><button class="primary-button closeout-button" id="closeout-button" type="button">Cerrar caja del día <span>→</span></button><p class="closeout-note">El cierre reúne todas las ventas registradas durante esta jornada.</p></section></section>
+
+      <section class="view" id="inventory-view" aria-label="Inventario">
+        <div class="view-heading"><div><p class="section-kicker">Control de mercadería</p><h2>Stock de productos</h2><p>Revisá existencias y actualizá tus productos en un solo lugar.</p></div><button class="primary-button" id="add-product-inventory" type="button">＋ Nuevo producto</button></div>
+        <div class="panel inventory-panel"><div class="inventory-toolbar"><div class="search-box compact"><span>⌕</span><input id="inventory-search" type="search" placeholder="Buscar en inventario..." /></div><button class="filter-button" type="button">☷ Filtrar</button><span class="inventory-count" id="inventory-count"></span></div><div class="inventory-table-wrap"><table><thead><tr><th>Producto</th><th>Categoría</th><th>Código</th><th>Precio</th><th>Stock</th><th></th></tr></thead><tbody id="inventory-body"></tbody></table></div></div>
+      </section>
+
+      <section class="view" id="scanner-view" aria-label="Escanear producto">
+        <div class="view-heading"><div><p class="section-kicker">Entrada rápida</p><h2>Lector de códigos</h2><p>Usá la cámara o ingresá un código para encontrar el producto.</p></div></div>
+        <div class="scanner-layout"><div class="panel scanner-panel"><div class="scanner-frame"><div class="scan-corner top-left"></div><div class="scan-corner top-right"></div><div class="scan-corner bottom-left"></div><div class="scan-corner bottom-right"></div><div class="scan-line"></div><span class="barcode-visual">||| |||| || |||||</span></div><div class="scanner-status"><span class="pulse"></span> Cámara lista para escanear</div><button class="primary-button full-button" id="simulate-scan" type="button">⌁ Simular escaneo</button></div><div class="panel scanner-help"><p class="section-kicker">Último escaneo</p><div class="last-scan-icon">✓</div><h3 id="last-scan-name">Todavía no hay escaneos</h3><p id="last-scan-detail">Cuando escanees un producto, sus datos aparecerán aquí.</p></div></div>
+      </section>
+
+      <section class="view" id="reports-view" aria-label="Resumen del día">
+        <div class="view-heading"><div><p class="section-kicker">Sábado 12 de septiembre</p><h2>Resumen del día</h2><p>Una lectura rápida de cómo viene tu jornada.</p></div></div><div class="report-grid"><div class="panel report-chart"><div class="panel-heading"><div><p class="section-kicker">Ritmo de ventas</p><h2>Ventas por hora</h2></div><span class="chart-total">$ 84.250</span></div><div class="bars" aria-label="Gráfico de ventas por hora"><span style="height:32%"></span><span style="height:47%"></span><span style="height:38%"></span><span style="height:62%"></span><span style="height:54%"></span><span style="height:82%"></span><span style="height:68%"></span><span style="height:100%"></span><span style="height:74%"></span><span style="height:88%"></span><span style="height:61%"></span><span style="height:44%"></span></div><div class="chart-labels"><span>8h</span><span>10h</span><span>12h</span><span>14h</span><span>16h</span><span>18h</span></div></div><div class="panel top-products"><p class="section-kicker">Más vendidos</p><h2>Productos estrella</h2><div id="top-products-list"></div></div></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="product-modal" hidden><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-header"><div><p class="section-kicker">Catálogo</p><h2 id="modal-title">Nuevo producto</h2></div><button class="close-modal" id="close-modal" type="button" aria-label="Cerrar">×</button></div><form id="product-form"><label>Nombre<input name="name" required placeholder="Ej. Yerba mate 500g" /></label><div class="form-row"><label>Precio<input name="price" type="number" min="0" required placeholder="1250" /></label><label>Stock<input name="stock" type="number" min="0" required placeholder="20" /></label></div><div class="form-row"><label>Categoría<select name="category"><option>Bebidas</option><option>Almacén</option><option>Snacks</option></select></label><label>Código<input name="code" placeholder="7790000000000" /></label></div><button class="primary-button full-button" type="submit">Guardar producto <span>→</span></button></form></div></div>
+  <div class="modal-backdrop" id="settings-modal" hidden><div class="modal settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title"><div class="modal-header"><div><p class="section-kicker">Preferencias</p><h2 id="settings-title">Configuración</h2></div><button class="close-modal" id="close-settings" type="button" aria-label="Cerrar">×</button></div><div class="settings-actions"><button class="settings-action" id="settings-help" type="button"><span class="settings-action-icon">?</span><span><strong>Ayuda</strong><small>Consultá las funciones de Mostrador</small></span><span>→</span></button><div class="language-setting"><div><strong>Cambio de idioma</strong><small>Elegí cómo ver la aplicación</small></div><div class="language-options"><button class="language-option active" data-language="es" type="button">ES</button><button class="language-option" data-language="en" type="button">EN</button></div></div><button class="settings-action logout-action" id="settings-logout" type="button"><span class="settings-action-icon">↪</span><span><strong>Cerrar sesión</strong><small>Salir de esta cuenta</small></span><span>→</span></button></div><p class="settings-status" id="settings-status">Idioma actual: Español</p></div></div>
+  <div class="modal-backdrop" id="help-modal" hidden><div class="modal help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title"><div class="modal-header"><div><p class="section-kicker">Guía rápida</p><h2 id="help-title">Cómo usar Mostrador Web</h2></div><button class="close-modal" id="close-help" type="button" aria-label="Cerrar">×</button></div><div class="tutorial-list"><div class="tutorial-step"><span>1</span><div><strong>Elegí productos</strong><small>Entrá en Operaciones y tocá cada producto para sumarlo al ticket.</small></div></div><div class="tutorial-step"><span>2</span><div><strong>Cobrá la venta</strong><small>Desde Cobrar elegí el medio de pago, ingresá el billete y revisá el vuelto.</small></div></div><div class="tutorial-step"><span>3</span><div><strong>Controlá el stock</strong><small>En Stock podés buscar productos y detectar existencias bajas.</small></div></div><div class="tutorial-step"><span>4</span><div><strong>Cerrá la jornada</strong><small>En Cierre revisá todas las ventas y cerrá la caja del día.</small></div></div></div><button class="primary-button full-button" id="finish-help" type="button">Entendido <span>✓</span></button></div></div>
+  <div class="modal-backdrop" id="logout-confirm-modal" hidden><div class="modal confirm-modal" role="dialog" aria-modal="true" aria-labelledby="logout-title"><div class="confirm-icon">↪</div><h2 id="logout-title">¿Cerrar sesión?</h2><p>Vas a salir de Mostrador Web. Podés volver a entrar con tus datos.</p><div class="confirm-actions"><button class="secondary-button" id="cancel-logout" type="button">Cancelar</button><button class="primary-button" id="confirm-logout" type="button">Cerrar sesión</button></div></div></div>
+  <div class="toast" id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
